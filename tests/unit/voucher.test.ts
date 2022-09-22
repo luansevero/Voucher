@@ -5,8 +5,8 @@ import voucherFactory from "../factories/voucherFactory";
 
 jest.mock("../../src/repositories/voucherRepository")
 
-describe("Voucher", () => {
-    it("Criação do Voucher - 201", async () => {
+describe("Voucher creation", () => {
+    it("Creation sucess - 201", async () => {
         const expectedVoucher = await voucherFactory.__createVoucher();
 
         jest
@@ -22,7 +22,7 @@ describe("Voucher", () => {
         expect(voucherRepository.createVoucher).toBeCalled();
     });
 
-    it("Voucher Existe?", async () => {
+    it("Already have that voucher - 409", async () => {
         const expectedVoucher = await voucherFactory.__createVoucher();
         jest
             .spyOn(voucherRepository, "getVoucherByCode")
@@ -35,8 +35,10 @@ describe("Voucher", () => {
         const { createVoucher } = voucherService;
         expect(createVoucher(expectedVoucher["code"], expectedVoucher["discount"])).rejects.toEqual({type: "conflict", message:"Voucher already exist."});
     })
+});
 
-    it("Aplicando Voucher", async () => {
+describe("Using Voucher", () => {
+    it("Sucess on using voucher - 200", async () => {
         const expectedVoucher = await voucherFactory.__createVoucher();
         jest
             .spyOn(voucherRepository, "getVoucherByCode")
@@ -51,7 +53,7 @@ describe("Voucher", () => {
         expect(voucherRepository.useVoucher).toBeCalled();
     })
 
-    it("Voucher não existe", async () => {
+    it("Voucher dosen't exist - 409", async () => {
         const expectedVoucher = await voucherFactory.__createVoucher();
         jest
             .spyOn(voucherRepository, "getVoucherByCode")
@@ -60,4 +62,4 @@ describe("Voucher", () => {
         const amount = 300;
         await expect(applyVoucher(expectedVoucher["code"], amount)).rejects.toEqual({type:"conflict", message: "Voucher does not exist."})
     })
-});
+})
