@@ -33,8 +33,7 @@ describe("Voucher", () => {
             .mockResolvedValueOnce(null)
 
         const { createVoucher } = voucherService;
-        expect(createVoucher(expectedVoucher["code"], expectedVoucher["discount"])).toBe({status})
-        expect(voucherRepository.createVoucher).not.toBeCalled();
+        expect(createVoucher(expectedVoucher["code"], expectedVoucher["discount"])).rejects.toEqual({type: "conflict", message:"Voucher already exist."});
     })
 
     it("Aplicando Voucher", async () => {
@@ -50,5 +49,15 @@ describe("Voucher", () => {
         const amount = 300;
         await expect(applyVoucher(expectedVoucher["code"], amount)).resolves.not.toThrow();
         expect(voucherRepository.useVoucher).toBeCalled();
+    })
+
+    it("Voucher não existe", async () => {
+        const expectedVoucher = await voucherFactory.__createVoucher();
+        jest
+            .spyOn(voucherRepository, "getVoucherByCode")
+            .mockResolvedValueOnce(null)
+        const { applyVoucher } = voucherService;
+        const amount = 300;
+        await expect(applyVoucher(expectedVoucher["code"], amount)).rejects.toEqual({type:"conflict", message: "Voucher does not exist."})
     })
 });
